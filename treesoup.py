@@ -96,6 +96,10 @@ class XML(object):
     def __call__(self, pattern):
         return [self._wrap_child_element(x) for x in self._element.findall('.//' + pattern)]
 
+    def iter(self, tag=None):
+        for x in self._element.getiterator(tag):
+            yield self._wrap_child_element(x)
+        
     def find(self, pattern):
         x = self._element.find(pattern)
         return self._wrap_child_element(x)
@@ -151,8 +155,5 @@ if __name__ == '__main__':
     xml = PhotoXML('''<rsp stat="ok"><photo id="4368732797" secret="6279410d6d" server="4032" farm="5" dateuploaded="1266592022" isfavorite="0" license="4" rotation="0" originalsecret="9ee3a31f15" originalformat="jpg" views="1110" media="photo"><owner nsid="12187063@N02" username="*~Dawn~*" realname="" location="Saratoga, California, USA"/><title>I've Been Tagged.</title><visibility ispublic="1" isfriend="0" isfamily="0"/><dates posted="1266592022" taken="2010-02-18 16:56:06" takengranularity="0" lastupdate="1279296487"/><editability cancomment="0" canaddmeta="0"/><usage candownload="1" canblog="0" canprint="0" canshare="0"/><comments>110</comments><notes><note id="72157623342229665" author="7323454@N08" authorname="*~ peedge ~*" x="275" y="173" w="50" h="50">This looks so unreal .. Like liquid metal kinda effect</note><note id="72157623476287744" author="21923086@N05" authorname="Stephen Oachs" x="232" y="134" w="50" h="50">Hot tom boy ;)</note></notes><tags><tag id="12166715-4368732797-411" author="12187063@N02" raw="self portrait" machine_tag="0">selfportrait</tag><tag id="12166715-4368732797-1127671" author="12187063@N02" raw="horse's eye" machine_tag="0">horseseye</tag><tag id="12166715-4368732797-1518294" author="12187063@N02" raw="I DARE YOU" machine_tag="0">idareyou</tag><tag id="12166715-4368732797-52406650" author="12187063@N02" raw="TO DO THIS TOO" machine_tag="0">todothistoo</tag><tag id="12166715-4368732797-8524" author="8943680@N04" raw="Whiskey" machine_tag="0">whiskey</tag><tag id="12166715-4368732797-7062" author="8943680@N04" raw="Bat" machine_tag="0">bat</tag></tags><urls><url type="photopage">http://www.flickr.com/photos/naturesdawn/4368732797/</url></urls></photo></rsp>''')    
     print repr(xml.dates), xml.dates.posted, xml.dates.taken, xml.dates.lastupdate
 
-    
-    xml = parse(u'<title>¡™£</title>')
-    print repr(xml.text), xml.text
-    print repr(xml.tag), xml.tag
-    
+    for x in xml.iter():
+        print x.tag
