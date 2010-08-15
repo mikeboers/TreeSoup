@@ -5,7 +5,7 @@ try:
     import xml.etree.cElementTree as etree
 except ImportError:
     import xml.etree.ElementTree as etree
-    
+
 import copy
 
 
@@ -41,8 +41,9 @@ class XML(object):
     _base_child_class = None
     _attr_child_classes = {}
     
-    def _auto_child_class(self, name=None):
-        return self.__class__._attr_child_classes.get(name) or self._base_child_class or self.__class__
+    def _wrap_child_element(self, element):
+        class_ = self.__class__._attr_child_classes.get(element.tag) or self._base_child_class or self.__class__
+        return class_(element)
     
     @classmethod
     def register_attr_class(cls, name):
@@ -83,24 +84,24 @@ class XML(object):
 
     def __getitem__(self, name):
         if isinstance(name, int):
-            return self._auto_child_class()(self._element[name])
+            return self._wrap_child_element()(self._element[name])
         return self._element.attrib[name]
 
     def __getattr__(self, name):
         if name in self._etree_attrs:
             return getattr(self._element, name)
         res = self._element.find('.//' + name)
-        return self._auto_child_class(name)(res) if res is not None else None
+        return self._wrap_child_element(res) if res is not None else None
 
     def __call__(self, pattern):
-        return [self._auto_child_class()(x) for x in self._element.findall('.//' + pattern)]
-
+        return [self._wrap_child_element(x) for x in self._element.findall('.//' + pattern)]
 
     def find(self, pattern):
-        return self._auto_child_class()(self._element.find(pattern))
+        x = self._element.find(pattern)
+        return self._wrap_child_element(x)
 
     def findall(self, pattern):
-        return [self._auto_child_class()(x) for x in self._element.findall(pattern)]
+        return [self._wrap_child_element(x) for x in self._element.findall(pattern)]
 
     def to_string(self, pretty=False):
         el = self._element
